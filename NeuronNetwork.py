@@ -16,6 +16,7 @@ class NeuronNetwork:
         self.weights = [] #2d array with weights vectors for all layers and neurons
         self.eta = eta
         self.beta = beta
+        self.deltaW = []
         self.saveWeightsTo = saveWeightsTo
         
         if loadWeightsFrom == None:
@@ -50,10 +51,14 @@ class NeuronNetwork:
                     
             
     def predict(self,x,w):
-        x = np.insert(x,0,1)
-        s = float(np.dot(w, x))
+        x1 = np.insert(x,0,1)
+        s = float(np.dot(w, x1))
         wy = (float)(1/(1 + pow(math.e,-1 * self.beta * s)))
-        return [s,wy]
+        return [s,wy,w,x]
+    
+    def deltaS(self, wy, deltaWy):
+        return deltaWy * (self.beta*wy*(1-wy))
+    
     def learn(self):
         for sample_num,sample in enumerate(self.X): #for all samples
             layer_array = []
@@ -70,21 +75,43 @@ class NeuronNetwork:
                 layer_array.append(array)
             
             
-                
+            deltaS = []
+            w = None
             for num, layer in reversed(list(enumerate(layer_array))):
-                array = []
+                deltaW = []
+                
                 for neuron_num, neuron in enumerate(layer):
                     if num == len(layer_array) - 1: #Ostatnia warstwa sieci
                         #corect
                         c = self.eta * (self.d[sample_num][neuron_num] - neuron[1]) # eta * (d - wy)
-                        array.append([c])
-                        print(neuron)
+                        deltaS.append(self.deltaS(neuron[1], c))
+                        print("deltaS:", deltaS)
+                        wCorrect = [1]
+                        wCorrect.extend(neuron[3])
+                        wCorrect = np.asarray(wCorrect,dtype="float64")
+                        print("222",wCorrect)
+                        wCorrect *= deltaS
+                        print("222",wCorrect)
+                        deltaW.append(wCorrect)
+                        w = neuron[2]
+                        
                     else: #reszta warstw sieci
-                        print(neuron)
+                        deltaWe = w[neuron_num+1] * deltaS[0]
+                        dS = self.deltaS(neuron[1],deltaWe)
+                        wCorrect = [1]
+                        wCorrect.extend(neuron[3])
+                        wCorrect = np.asarray(wCorrect,dtype="float64")
+                        wCorrect *= dS
+                        deltaW.append(wCorrect)
+                        print("ni",wCorrect)
                         
                         
-                print("a",array)
-                print()
+                self.deltaW.append(deltaW)
+                        
+                        
+                    
+            print("deltaW: ",self.deltaW)
+           
                     
                 
                 
