@@ -5,7 +5,6 @@ Created on Thu May  7 12:26:38 2020
 @author: Tomek
 """
 
-
 import numpy as np
 import math
 import pickle
@@ -29,10 +28,13 @@ class NeuralNetwork:
             self.layers.append([])
             for neuron_i in range(layer):
                 if(i == 0):
-                    w = np.random.rand(layer+1)
+                    w = np.random.rand(len(self.X[0])+1)
+
                 else:
                     w = np.random.rand(network[i-1]+1)
+
                 self.layers[i] = np.append(self.layers[i], Neuron(w))
+
         if(loadWeightsFrom != None):
             self.loadWeights()
         
@@ -73,7 +75,6 @@ class NeuralNetwork:
             if(i == 0):
                 for neuron in layer:
                     neuron.we = np.insert(x,0,1)
-                   
                     neuron.s = np.dot(neuron.we, neuron.w)
                     neuron.wy = self.activation(neuron.s)
                     prevWy.append(neuron.wy)
@@ -125,19 +126,10 @@ class NeuralNetwork:
                 print("Sample: ", sample)
                 print("Resoults: ", predict)
                 print("--------------------------")
+            np.random.shuffle(self.samples)
             
             
-            
-        
-        
-            
-                    
-                
-                    
-                  
-                
-                
-                
+       
 class Neuron:
     def __init__(self, w):
         self.we = np.asarray([1],dtype="float64"),
@@ -151,7 +143,7 @@ class Neuron:
         
 X = np.array([[1,0,1],[0,1,1],[1,1,0],[0,0,0]], dtype="float64")       
         
-Network = NeuralNetwork(X, saveWeightsTo="weights", loadWeightsFrom="defaultweights")
+Network = NeuralNetwork(X, saveWeightsTo="weights")
 Network.learn()
 
 
