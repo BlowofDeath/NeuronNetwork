@@ -102,7 +102,6 @@ class NeuralNetwork:
                     c = self.eta * (d[i_n] - neuron.wy) # eta * (d - wy)
                     deltaS = self.deltaS(neuron.wy, c)
                     neuron.deltaW = neuron.we * deltaS
-                    
                     if(preWe==[]):
                         preWe.append(np.delete(neuron.w,0) * deltaS)
                         
@@ -110,8 +109,13 @@ class NeuralNetwork:
                         preWe[len(self.layers)-1-num] += np.delete(neuron.w,0) * deltaS
                     
                 else: #trzeba zaktualizować by działało z wieloma warstwami
-                    deltaS = self.deltaS(neuron.wy, preWe[len(self.layers)-2-num][i_n])
+                    deltaS = self.deltaS(neuron.wy, preWe[len(self.layers)-2-num][i_n]) #error
                     neuron.deltaW = neuron.we * deltaS
+                    if(i_n == 0):
+                        preWe.append(np.delete(neuron.w,0) * deltaS)
+                    else:
+                        preWe[len(self.layers)-1-num] += np.delete(neuron.w,0) * deltaS
+                    
     def improveWeights(self):
         for layer in self.layers:
             for neuron in layer:
@@ -141,7 +145,7 @@ class Neuron:
         
         
         
-X = np.array([[1,0,1],[0,1,1],[1,1,0],[0,0,0]], dtype="float64")       
+X = np.array([[1,0,1],[0,1,1],[1,1,0],[0,0,1]], dtype="float64")       
         
 Network = NeuralNetwork(X, saveWeightsTo="weights")
 Network.learn()
